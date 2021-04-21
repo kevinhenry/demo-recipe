@@ -1,25 +1,42 @@
-import logo from './logo.svg';
-import './App.css';
+import React from 'react';
+import axios from 'axios';
+import Recipe from './components/Recipe';
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+class App extends React.Component {
+  constructor(props){
+    super(props);
+    this.state={
+      ingredient:'',
+      recipes: []
+    }
+  }
+
+  getRecipes = async (e) => {
+    e.preventDefault();
+    const server='http://localhost:3001';
+    const recipes = await axios.get(`${server}/recipes`, {params: {ingredient: this.state.ingredient}});
+    this.setState({ recipes: recipes.data });
+  }
+
+  render() {
+    return(
+      <>
+        <form onSubmit={this.getRecipes}>
+          <label>enter an ingredient</label>
+          <input onChange={(e) => this.setState({ ingredient:e.target.value })} type="text" name="ingredient"></input>
+          <button>submit</button>
+        </form>
+
+        {this.state.recipes.length && this.state.recipes.map((recipe, idx) => (
+          <Recipe
+            key={idx}
+            recipe={recipe}
+          />
+          ))
+        }
+      </>
+    )
+  }
 }
 
 export default App;
